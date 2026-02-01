@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Extension Tools</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🤖 Claude Extension Tools</h1>
+    </header>
+    
+    <main>
+      <section class="settings">
+        <h2>Settings</h2>
+        
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="enabled" checked>
+            <span>Enable Extension</span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="autoSave" checked>
+            <span>Auto-save conversations</span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="shortcuts" checked>
+            <span>Enable keyboard shortcuts</span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="enhancedUI" checked>
+            <span>Enhanced UI</span>
+          </label>
+        </div>
+      </section>
+      
+      <section class="actions">
+        <h2>Quick Actions</h2>
+        
+        <button id="saveBtn" class="action-btn">
+          💾 Save Current Conversation
+        </button>
+        
+        <button id="exportBtn" class="action-btn">
+          📤 Export Conversations
+        </button>
+        
+        <button id="clearBtn" class="action-btn danger">
+          🗑️ Clear Saved Data
+        </button>
+      </section>
+      
+      <section class="stats">
+        <h2>Statistics</h2>
+        <div id="stats">
+          <p>Loading...</p>
+        </div>
+      </section>
+    </main>
+    
+    <footer>
+      <p>Claude Extension Tools v1.0.0</p>
+    </footer>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
