@@ -18,8 +18,7 @@ export function extractConversation() {
     if (content) {
       messages.push({
         role,
-        content,
-        timestamp: new Date().toISOString()
+        content
       });
     }
   });

@@ -1,9 +1,6 @@
 // Content script for Claude AI pages
 console.log('Claude extension content script loaded');
 
-// Import utilities
-import { extractConversation, enhanceUI, addShortcuts } from './utils/helpers.js';
-
 // Initialize extension
 (function init() {
   console.log('Initializing Claude extension tools...');
@@ -19,7 +16,7 @@ import { extractConversation, enhanceUI, addShortcuts } from './utils/helpers.js
 function setup() {
   // Get settings
   chrome.runtime.sendMessage({ action: 'getSettings' }, (response) => {
-    if (response.success) {
+    if (response && response.success) {
       const settings = response.data;
       
       if (settings.enabled) {
@@ -35,6 +32,8 @@ function setup() {
           setupAutoSave();
         }
       }
+    } else {
+      console.error('Failed to get settings');
     }
   });
   
@@ -177,12 +176,25 @@ function showNotification(message, type = 'info') {
 }
 
 // Setup auto-save
+let autoSaveInterval = null;
+
 function setupAutoSave() {
+  // Clear existing interval if any
+  if (autoSaveInterval) {
+    clearInterval(autoSaveInterval);
+  }
+  
   // Auto-save every 5 minutes
-  setInterval(() => {
+  autoSaveInterval = setInterval(() => {
     chrome.runtime.sendMessage({ action: 'getSettings' }, (response) => {
-      if (response.success && response.data.features.autoSave) {
+      if (response && response.success && response.data.features.autoSave) {
         handleSaveConversation();
+      } else if (response && response.success && !response.data.features.autoSave) {
+        // If auto-save is disabled, clear the interval
+        if (autoSaveInterval) {
+          clearInterval(autoSaveInterval);
+          autoSaveInterval = null;
+        }
       }
     });
   }, 5 * 60 * 1000);
@@ -195,3 +207,100 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   sendResponse({ success: true });
 });
+
+// Utility Functions
+/**
+ * Extract conversation from the page
+ * @returns {Object} Conversation data
+ */
+function extractConversation() {
+  const messages = [];
+  
+  // Try to find message elements (adjust selectors based on actual Claude UI)
+  const messageElements = document.querySelectorAll('[class*="message"], [data-message]');
+  
+  messageElements.forEach((element) => {
+    const role = element.getAttribute('data-role') || 
+                 (element.classList.contains('user') ? 'user' : 'assistant');
+    const content = element.textContent.trim();
+    
+    if (content) {
+      messages.push({
+        role,
+        content
+      });
+    }
+  });
+  
+  return {
+    title: document.title || 'Claude Conversation',
+    url: window.location.href,
+    timestamp: new Date().toISOString(),
+    messages
+  };
+}
+
+/**
+ * Enhance the UI with custom features
+ */
+function enhanceUI() {
+  // Add custom CSS
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
+    #claude-extension-toolbar button:hover {
+      transform: scale(1.05);
+    }
+    
+    #claude-extension-toolbar button:active {
+      transform: scale(0.95);
+    }
+  `;
+  document.head.appendChild(style);
+  
+  console.log('UI enhanced');
+}
+
+/**
+ * Add keyboard shortcuts
+ */
+function addShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    // Ctrl+S or Cmd+S to save
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      const event = new CustomEvent('claude-extension-save');
+      document.dispatchEvent(event);
+    }
+    
+    // Ctrl+E or Cmd+E to export
+    if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+      e.preventDefault();
+      const event = new CustomEvent('claude-extension-export');
+      document.dispatchEvent(event);
+    }
+  });
+  
+  console.log('Keyboard shortcuts added');
+}

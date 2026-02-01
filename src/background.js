@@ -56,7 +56,7 @@ async function handleSaveConversation(data) {
   };
   
   // Store in local storage
-  const stored = await chrome.storage.local.get(['conversations']) || { conversations: [] };
+  const stored = await chrome.storage.local.get(['conversations']);
   stored.conversations = stored.conversations || [];
   stored.conversations.push(conversation);
   

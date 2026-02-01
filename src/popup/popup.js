@@ -10,13 +10,15 @@ function init() {
 // Load current settings
 function loadSettings() {
   chrome.runtime.sendMessage({ action: 'getSettings' }, (response) => {
-    if (response.success) {
+    if (response && response.success) {
       const { enabled, features } = response.data;
       
       document.getElementById('enabled').checked = enabled;
       document.getElementById('autoSave').checked = features.autoSave;
       document.getElementById('shortcuts').checked = features.shortcuts;
       document.getElementById('enhancedUI').checked = features.enhancedUI;
+    } else {
+      console.error('Failed to load settings');
     }
   });
 }
